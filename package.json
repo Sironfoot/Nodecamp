@@ -1,0 +1,10 @@
+{
+    "name": "Nodecamp"
+  , "version": "0.0.1"
+  , "private": true
+  , "dependencies": {
+      "express": "2.4.2"
+    , "less": ">= 0.0.1"
+    , "ejs": ">= 0.0.1"
+  }
+}

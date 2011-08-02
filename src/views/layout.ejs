@@ -1,10 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+  	<meta charset="utf-8" />
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <link rel="shortcut icon" href="/images/favicon.ico" />
+    <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
+
+    <link rel='stylesheet' href='/stylesheets/reset.css' />
+    <link rel='stylesheet' href='/stylesheets/main.css' />
+    
   </head>
+
   <body>
+    <header>
+      <hgroup>
+        <h1>Nodecamp</h1>
+        <h2>WebSocket chatroom written in Node.js</h2>
+      </hgroup>
+    </header>
+
+    <div id="Middle">
+      <h1>Random Chatroom</h1>
+
+      <section id="ChatWindow">
+        <h2>Conversion</h2>
+
+        <article>
+          <h3>John said:</h3>
+          <p>
+            Twenty-four hours a day, the latest national and international
+            stories as they break.
+          </p>
+        </article>
+
+        <article>
+          <h3>Tim said:</h3>
+          <p>
+            Twenty-four hours a day, the latest national and international
+            stories as they break.
+          </p>
+        </article>
+
+        <article>
+          <h3>John said:</h3>
+          <p>
+            Twenty-four hours a day, the latest national and international
+            stories as they break.
+          </p>
+        </article>
+      </section>
+
+      <section id="UsersList">
+        <h2>Who's Online</h2>
+
+        <ul>
+          <li>John Smith</li>
+          <li>Tim Rice</li>
+        </ul>
+      </section>
+    </div>
+
+    <footer>
+      <small>
+        Fork me on Github at
+        <a href="http://github.com/Sironfoot/Nodecamp">http://github.com/Sironfoot/Nodecamp</a>
+      </small>
+    </footer>
+
     <%- body %>
   </body>
 </html>

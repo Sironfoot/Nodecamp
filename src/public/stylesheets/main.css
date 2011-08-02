@@ -1,0 +1,163 @@
+
+
+/* Main Layout!
+-------------------------------------------------------------------------------*/
+
+body > header,
+#Middle,
+body > footer
+{
+	width: 900px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+body > header
+{
+	margin-top: 20px;
+	margin-bottom: 40px;
+}
+
+body > footer
+{
+	margin-top: 40px;
+	margin-bottom: 20px;
+}
+
+#Middle:after
+{
+    content: "."; 
+    display: block; 
+    height: 0; 
+    clear: both; 
+    visibility: hidden;
+}
+
+#ChatWindow
+{
+	float: left;
+	width: 600px;
+}
+
+#UsersList
+{
+	float: right;
+	width: 200px;
+}
+
+
+
+
+/* Generic Styles!
+-------------------------------------------------------------------------------*/
+
+body
+{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	color: #333;
+	background-color: #eed;
+}
+
+h1, h2, h3
+{
+	margin-bottom: 0.5em;
+	font-weight: bold;
+}
+
+h1 { font-size: 42.2px; }
+
+h2 { font-size: 26.2px; }
+
+h3 { font-size: 16px; }
+
+p
+{
+	margin-bottom: 0.5em;
+	line-height: 1.3em;
+}
+
+
+
+
+/* Header!
+-------------------------------------------------------------------------------*/
+
+body > header
+{
+	border-bottom: 1px solid #ddd;
+}
+
+body > header > hgroup
+{
+	text-shadow: 0px 2px 0px #fff;
+	color: #666;
+}
+
+body > header > hgroup > h1
+{
+	text-shadow: 0px 3px 0px #fff;
+}
+
+body > header > hgroup > h2
+{
+	font-size: 16px;
+}
+
+
+
+
+/* Middle!
+-------------------------------------------------------------------------------*/
+
+#Middle > h1
+{
+	font-size: 26.2px;
+}
+
+#Middle > section
+{
+	padding: 10px;
+}
+
+#Middle > section > h2
+{
+	font-size: 16px;
+}
+
+/*---- ChatWindow ----*/
+
+#ChatWindow
+{
+	height: 600px;
+	outline: 1px solid #ccc;
+	background-color: #eee;
+	overflow-y: scroll;
+}
+
+@media screen and (max-height: 1000px) {
+	
+	#ChatWindow
+	{
+		height: 400px;
+	}
+}
+
+#ChatWindow > h2
+{
+	display: none;
+}
+
+/*---- UsersList ----*/
+
+#UsersList
+{
+	outline: 1px solid #ddd;
+	background-color: #eee;
+	max-height: 400px;
+	overflow-y: scroll;
+}
+
+
+
+

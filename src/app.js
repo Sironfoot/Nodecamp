@@ -4,8 +4,10 @@
  */
 
 var express = require('express');
+var net = require('net');
 
 var app = module.exports = express.createServer();
+
 
 // Configuration
 
@@ -38,5 +40,47 @@ app.get('/', function(req, res){
 });
 
 app.listen(3000);
+
+function pushDataToSockets(element, index, array)
+{
+  element.write(index + ': ' + this);
+}
+
+var sockets = [];
+
+var socketServer = net.createServer(function(socket) {
+
+  sockets.push(socket);
+
+  console.log(sockets.length + ' socket(s)');
+  
+  socket.on('data', function(data) {
+    
+    sockets.forEach(pushDataToSockets, data);
+  });
+
+  socket.on('end', function() {
+    console.log('on end');
+  });
+
+  socket.on('close', function() {
+    console.log('on close');
+  });
+
+  socket.on('error', function() {
+    console.log('on error');
+  });
+
+  //socket.pipe(socket);
+
+});
+
+
+
+
+
+socketServer.listen(8080, 'localhost');
+
+
 
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

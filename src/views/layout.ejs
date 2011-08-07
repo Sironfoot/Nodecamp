@@ -11,6 +11,28 @@
 
     <link rel='stylesheet' href='/stylesheets/reset.css' />
     <link rel='stylesheet' href='/stylesheets/main.css' />
+
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+
+        if(typeof(WebSocket) != 'undefined') {
+
+            var socket = new WebSocket('ws://localhost:8080/');
+
+            socket.onmessage = function(event) {
+              alert(event.data);
+            };
+
+            socket.onclose = function() {
+              alert('socket closed');
+            };
+        }
+        else {
+          alert('WebSockets are NOT supported!');
+        }
+      }, false);
+    </script>
     
   </head>
 

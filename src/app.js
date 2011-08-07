@@ -9,6 +9,13 @@ var net = require('net');
 var app = module.exports = express.createServer();
 
 
+
+Array.prototype.remove = function(e) {
+  for (var i = 0; i < this.length; i++)
+    if (e == this[i]) return this.splice(i, 1);
+}
+
+
 // Configuration
 
 app.configure(function(){
@@ -56,7 +63,28 @@ var socketServer = net.createServer(function(socket) {
   
   socket.on('data', function(data) {
     
-    sockets.forEach(pushDataToSockets, data);
+    //sockets.forEach(pushDataToSockets, data);
+
+    var dataString = data.toString('binary');
+
+    var lines = dataString.split('\r\n');
+
+    var headers = {};
+
+    lines.forEach(function(element, index, array) {
+      if(element.length > 0 && element.indexOf('GET') !== 0)
+      {
+        var keyValue = element.split(': ');
+        var key = keyValue[0];
+        var value = keyValue[1];
+
+        headers[key] = value;
+      }
+    });
+
+    console.log(headers);
+
+    console.log('The key is: ' + headers['Sec-WebSocket-Key']);
   });
 
   socket.on('end', function() {
@@ -64,12 +92,17 @@ var socketServer = net.createServer(function(socket) {
   });
 
   socket.on('close', function() {
+
+    sockets.remove(socket);
+
     console.log('on close');
   });
 
   socket.on('error', function() {
     console.log('on error');
   });
+
+  socket.write('hello world');
 
   //socket.pipe(socket);
 

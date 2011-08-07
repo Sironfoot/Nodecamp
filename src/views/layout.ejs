@@ -16,6 +16,17 @@
 
       document.addEventListener('DOMContentLoaded', function() {
 
+        document.getElementById('TestSocket').addEventListener('click', function(event) {
+          try
+          {
+            socket.send('Hello');
+          }
+          catch(err)
+          {
+            alert(err);
+          }
+        });
+
         if(typeof(WebSocket) != 'undefined') {
 
             var socket = new WebSocket('ws://localhost:8080/');
@@ -27,6 +38,12 @@
             socket.onclose = function() {
               alert('socket closed');
             };
+
+            socket.onerror = function(event) {
+                alert(event.data);
+            };
+
+            //socket.send('Hello world');
         }
         else {
           alert('WebSockets are NOT supported!');
@@ -82,6 +99,8 @@
           <li>John Smith</li>
           <li>Tim Rice</li>
         </ul>
+
+        <input type="button" id="TestSocket" value="Test Socket" />
       </section>
     </div>
 

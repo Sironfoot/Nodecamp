@@ -17,19 +17,12 @@
       document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('TestSocket').addEventListener('click', function(event) {
-          try
-          {
-            socket.send('Hello');
-          }
-          catch(err)
-          {
-            alert(err);
-          }
+            socket.send('Hello World');
         });
 
         if(typeof(WebSocket) != 'undefined') {
 
-            var socket = new WebSocket('ws://localhost:8080/');
+            var socket = new WebSocket('ws://localhost:3000/');
 
             socket.onmessage = function(event) {
               alert(event.data);

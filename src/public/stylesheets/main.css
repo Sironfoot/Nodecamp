@@ -148,6 +148,41 @@ body > header > hgroup > h2
 	display: none;
 }
 
+#ChatWindow > article
+{
+	margin-bottom: 1em;
+}
+
+#ChatWindow > article > h3,
+#ChatWindow > article > p
+{
+	display: inline;
+	line-height: 1.3em;
+}
+
+#ChatWindow > fieldset > label
+{
+	display: none;
+}
+
+#ChatWindow > fieldset > legend
+{
+	font-size: 16px;
+	font-weight: bold;
+	padding-bottom: 0.5em;
+}
+
+#ChatBox
+{
+	width: 100%;
+	border: none;
+	box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    resize: none;
+    height: 120px;
+}
+
 /*---- UsersList ----*/
 
 #UsersList

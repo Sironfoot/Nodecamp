@@ -36,7 +36,6 @@
                 alert(event.data);
             };
 
-            //socket.send('Hello world');
         }
         else {
           alert('WebSockets are NOT supported!');
@@ -61,7 +60,7 @@
         <h2>Conversion</h2>
 
         <article>
-          <h3>John said:</h3>
+          <h3>John:</h3>
           <p>
             Twenty-four hours a day, the latest national and international
             stories as they break.
@@ -69,7 +68,16 @@
         </article>
 
         <article>
-          <h3>Tim said:</h3>
+          <h3>Tim:</h3>
+          <p>
+            Twenty-four hours a day, the latest national and international
+            stories as they break. wenty-four hours a day, the latest
+            national and international stories as they break.
+          </p>
+        </article>
+
+        <article>
+          <h3>John:</h3>
           <p>
             Twenty-four hours a day, the latest national and international
             stories as they break.
@@ -77,12 +85,27 @@
         </article>
 
         <article>
-          <h3>John said:</h3>
+          <h3>John:</h3>
           <p>
             Twenty-four hours a day, the latest national and international
             stories as they break.
           </p>
         </article>
+
+        <article>
+          <h3>Tim:</h3>
+          <p>
+            Twenty-four hours a day, the latest national and international
+            stories as they break.
+          </p>
+        </article>
+
+        <fieldset>
+          <legend>Tim:</legend>
+
+          <label>Message</label>
+          <textarea id="ChatBox" cols="30" rows="10"></textarea>
+        </fieldset>
       </section>
 
       <section id="UsersList">

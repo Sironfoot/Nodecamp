@@ -14,28 +14,56 @@
 
     <script>
 
+      function guidGenerator() {
+        var S4 = function() {
+          return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        };
+
+        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
 
+        var clientId = guidGenerator();
+
         document.getElementById('TestSocket').addEventListener('click', function(event) {
-            socket.send('Hello World');
+
+            var name = document.getElementById('NameBox').value;
+
+            var command = {
+              id: clientId,
+              type: 'setName',
+              value: name
+            };
+            socket.send(JSON.stringify(command));
         });
 
-        if(typeof(WebSocket) != 'undefined') {
+        var socket;
+        var url = 'ws://' + document.URL.substr(7).split('/')[0];
 
-            var socket = new WebSocket('ws://localhost:3000/');
+        if (typeof(MozWebSocket) != 'undefined') {
+          socket = new MozWebSocket(url, 'chat');
+        }
 
-            socket.onmessage = function(event) {
+        if (typeof(WebSocket) != 'undefined') {
+          socket = new WebSocket(url, 'chat');
+        }
+
+        if (socket) {
+          socket.onmessage = function(event) {
+
+            var cmd = JSON.parse(event.data);
+
+            alert(cmd.value);
+          };
+
+          socket.onclose = function() {
+            alert('socket closed');
+          };
+
+          socket.onerror = function(event) {
               alert(event.data);
-            };
-
-            socket.onclose = function() {
-              alert('socket closed');
-            };
-
-            socket.onerror = function(event) {
-                alert(event.data);
-            };
-
+          };
         }
         else {
           alert('WebSockets are NOT supported!');
@@ -116,6 +144,7 @@
           <li>Tim Rice</li>
         </ul>
 
+        <input type="text" id="NameBox" />
         <input type="button" id="TestSocket" value="Test Socket" />
       </section>
     </div>

@@ -10,7 +10,24 @@ var WebSocketServer = require('websocket').server;
 
 var app = module.exports = express.createServer();
 
+function showProps(obj)
+{
+  for(var prop in obj)
+  {
+    if(obj.hasOwnProperty(prop))
+    {
+      console.log(prop);
+    }
+  }
+}
 
+function showAllProps(obj)
+{
+  for(var prop in obj)
+  {
+    console.log(prop);
+  }
+}
 
 Array.prototype.remove = function(e) {
   for (var i = 0; i < this.length; i++)
@@ -19,7 +36,7 @@ Array.prototype.remove = function(e) {
 
 var wsServer = new WebSocketServer({
   httpServer: app,
-  autoAcceptConnections: true
+  autoAcceptConnections: false
 });
 
 
@@ -47,22 +64,67 @@ app.configure('production', function(){
 
 // Routes
 
-app.get('/', function(req, res){
+//showAllProps(app);
+
+app.get('/', function(req, res){ 
+
+  //console.log('Connect props...')
+  //console.log(showProps(req));
+
+  
+
   res.render('index', {
-    title: 'Express'
+    title: 'Nodecamp chatroom'
   });
 });
+
+app.on('upgrade', function(req, res) {
+  console.log('Upgrading...');
+
+  console.log(req.headers);
+});
+
+
 
 app.listen(3000);
 
 
-wsServer.on('connect', function(connection) {
-  console.log((new Date()) + ' Connection accepted.');
+var connections = [];
+
+wsServer.on('request', function(request) {
+
+  var connection = request.accept('chat', request.origin);
+
+  connections.push(connection);
+
+
+  console.log((new Date()) + ' Connection accepted (' + connection.remoteAddress +').');
 
   connection.on('message', function(message) {
     if (message.type == 'utf8') {
-      console.log('Received message: ' + message.utf8Data);
-      connection.sendUTF('You said: "' + message.utf8Data + '"');
+
+      var command = JSON.parse(message.utf8Data);
+
+      if(command.type == 'setName') {
+        connection.clientId = command.id;
+        connection.name = command.value;
+
+        connections.forEach(function(element, index, array) {
+          if(element !== connection) {
+            connection.sendUTF(JSON.stringify({
+              id: command.id,
+              type: 'setName',
+              value: command.value
+            }));
+          }
+        });
+      }
+      else if (command.type == 'message') {
+        
+      }
+
+      //console.log('Received message: ' + message.utf8Data);
+      //connection.sendUTF('You said: "' + message.utf8Data + '"');
     }
     else if (message.type == 'binary') {
       console.log('Received Binary Message of ' + message.binaryData.length + ' bytes.');

@@ -12,7 +12,21 @@
     <link rel='stylesheet' href='/stylesheets/reset.css' />
     <link rel='stylesheet' href='/stylesheets/main.css' />
 
+    <script src="/javascripts/cookies.js"></script>
+
     <script>
+
+      function showProps(obj, ownPropsOnly) {
+        var output = '';
+
+        for(var prop in obj) {
+          if(ownPropsOnly && obj.hasOwnProperty(prop)) {
+            output += prop.toString() + '\n';
+          }
+        }
+
+        alert(output);
+      }
 
       function guidGenerator() {
         var S4 = function() {
@@ -24,7 +38,17 @@
 
       document.addEventListener('DOMContentLoaded', function() {
 
-        var clientId = guidGenerator();
+        'use strict';
+
+        var clientId;
+
+        if(Cookie.has('clientId')) {
+          clientId = Cookie.get('clientId');
+        }
+        else {
+          clientId = guidGenerator();
+          Cookie.set('clientId', clientId);
+        }
 
         document.getElementById('TestSocket').addEventListener('click', function(event) {
 
@@ -35,6 +59,7 @@
               type: 'setName',
               value: name
             };
+
             socket.send(JSON.stringify(command));
         });
 
@@ -52,9 +77,17 @@
         if (socket) {
           socket.onmessage = function(event) {
 
-            var cmd = JSON.parse(event.data);
+            var command = JSON.parse(event.data);
 
-            alert(cmd.value);
+            if(command.type === 'setName') {
+              var usersList = document.querySelectorAll('#UsersList > ul > li');
+
+              for(var i = 0; i < usersList.length; i++) {
+                
+              }
+            }
+
+            //alert(cmd);
           };
 
           socket.onclose = function() {
@@ -62,7 +95,61 @@
           };
 
           socket.onerror = function(event) {
-              alert(event.data);
+              alert('socket error'); 
+          };
+
+          var name = Cookie.get('clientName') || 'Numpty_1';
+
+          var usersList = document.querySelectorAll('#UsersList > ul > li');
+          var existingUserItem;
+
+          for(var i = 0; i < usersList.length; i++) {
+
+            var listItem = usersList[i];
+
+            var itemId = listItem.id;
+            if(clientId === itemId) {
+
+              existingUserItem = listItem;
+            }
+            else {
+
+              var itemName = listItem.innerText;
+
+              if(name === itemName) {
+                if(name.match(/.+\_[0-9]+$/)) {
+                  var underscoreElements = name.split('_');
+                  var increment = parseInt(underscoreElements[underscoreElements.length - 1]);
+
+                  increment++;
+
+                  name = name.replace(/(.+)\_([0-9]+)$/, '$1') + ('_' + increment);
+                }
+              }
+            }
+          }
+
+          Cookie.set('clientName', name);
+
+          if(!existingUserItem) {
+            var newListItem = document.createElement('li'); 
+            newListItem.textContent = name;
+            newListItem.id = clientId;
+            document.querySelector('#UsersList > ul').appendChild(newListItem);
+          }
+          else {
+            existingUserItem.innerText = name;
+          }
+
+          socket.onopen = function() {
+
+            var command = {
+              id: clientId,
+              type: 'init',
+              value: name
+            };
+
+            socket.send(JSON.stringify(command));
           };
         }
         else {
@@ -140,8 +227,9 @@
         <h2>Who's Online</h2>
 
         <ul>
-          <li>John Smith</li>
-          <li>Tim Rice</li>
+          <% for(var i = 0; i < clients.length; i++) { %>
+            <li id="<%= clients[i].id %>"><%= clients[i].name %></li>
+          <% } %>
         </ul>
 
         <input type="text" id="NameBox" />

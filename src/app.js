@@ -10,22 +10,11 @@ var WebSocketServer = require('websocket').server;
 
 var app = module.exports = express.createServer();
 
-function showProps(obj)
-{
-  for(var prop in obj)
-  {
-    if(obj.hasOwnProperty(prop))
-    {
+function showProps(obj, ownPropsOnly) {
+  for(var prop in obj) {
+    if(ownPropsOnly && obj.hasOwnProperty(prop)) {
       console.log(prop);
     }
-  }
-}
-
-function showAllProps(obj)
-{
-  for(var prop in obj)
-  {
-    console.log(prop);
   }
 }
 
@@ -62,41 +51,30 @@ app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
 
+var clients = [];
+
 // Routes
 
-//showAllProps(app);
+app.get('/', function(req, res){  
 
-app.get('/', function(req, res){ 
-
-  //console.log('Connect props...')
-  //console.log(showProps(req));
-
-  
+  console.log('Get request: ' + clients.length);
 
   res.render('index', {
-    title: 'Nodecamp chatroom'
+    title: 'Nodecamp chatroom',
+    clients: clients
   });
 });
 
-app.on('upgrade', function(req, res) {
-  console.log('Upgrading...');
-
-  console.log(req.headers);
-});
-
-
 
 app.listen(3000);
-
-
-var connections = [];
 
 wsServer.on('request', function(request) {
 
   var connection = request.accept('chat', request.origin);
 
-  connections.push(connection);
-
+  var client = {};
+  client.connection = connection;
+  clients.push(client);
 
   console.log((new Date()) + ' Connection accepted (' + connection.remoteAddress +').');
 
@@ -105,13 +83,26 @@ wsServer.on('request', function(request) {
 
       var command = JSON.parse(message.utf8Data);
 
-      if(command.type == 'setName') {
-        connection.clientId = command.id;
-        connection.name = command.value;
+      if(command.type == 'init') {
+        client.id = command.id;
+        client.name = command.value;
 
-        connections.forEach(function(element, index, array) {
-          if(element !== connection) {
-            connection.sendUTF(JSON.stringify({
+        clients.forEach(function(element, index, array) {
+          if(element !== client) {
+            element.connection.sendUTF(JSON.stringify({
+              id: element.id,
+              type: 'addClient',
+              value: element.name
+            }));
+          }
+        });
+      }
+      else if(command.type == 'setName') {
+        client.name = command.value;
+
+        clients.forEach(function(element, index, array) {
+          if(element !== client) {
+            element.connection.sendUTF(JSON.stringify({
               id: command.id,
               type: 'setName',
               value: command.value
@@ -123,6 +114,7 @@ wsServer.on('request', function(request) {
         
       }
 
+
       //console.log('Received message: ' + message.utf8Data);
       //connection.sendUTF('You said: "' + message.utf8Data + '"');
     }
@@ -133,6 +125,16 @@ wsServer.on('request', function(request) {
 
   connection.on('close', function(connection) {
     console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+
+    clients.remove(client);
+
+    clients.forEach(function(element, index, array) {
+      element.connection.sendUTF(JSON.stringify({
+        id: client.id,
+        type: 'removeClient',
+        value: client.name
+      }));
+    });
   });
 });
 

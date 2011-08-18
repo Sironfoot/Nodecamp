@@ -36,6 +36,70 @@
         return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
       }
 
+      function ensureUniqueName(newName) {
+        var usersList = document.querySelectorAll('#UsersList > ul > li');
+
+        for(var i = 0; i < usersList.length; i++) {
+
+          var listItem = usersList[i];
+
+          var itemId = listItem.id;
+          var itemName = listItem.textContent;
+
+          if(newName === itemName && itemId !== clientId) {
+            if(newName.match(/.+\_[0-9]+$/)) {
+              var underscoreElements = newName.split('_');
+              var increment = parseInt(underscoreElements[underscoreElements.length - 1]);
+
+              increment++;
+
+              newName = newName.replace(/(.+)\_([0-9]+)$/, '$1') + ('_' + increment);
+            }
+            else {
+              newName = newName + '_1';
+            }
+          }
+        }
+
+        return newName;
+      }
+
+      function attachChangeNameEvent(currentName, socket) {
+        document.querySelector('#UsersList .changeName').addEventListener('click', function(event) {
+          var item = this.parentNode;
+          item.textContent = '';
+
+          var textbox = document.createElement('input');
+          textbox.setAttribute('type', 'text');
+          textbox.setAttribute('value', currentName);
+
+          item.appendChild(textbox);
+
+          var button = document.createElement('input');
+          button.setAttribute('type', 'button');
+          button.setAttribute('value', 'Set');
+
+          item.appendChild(button);
+
+          button.addEventListener('click', function(event) {
+            var newName = ensureUniqueName(textbox.value).trim();
+            item.innerHTML = newName + ' <span class="changeName">(<span>change</span>)</span>';
+
+            if(currentName !== newName)
+            {
+              socket.send(JSON.stringify({
+                type: 'setName',
+                value: newName
+              }));
+
+              Cookie.set('clientName', newName);
+            }
+
+            attachChangeNameEvent(newName, socket);
+          });
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
 
         'use strict';
@@ -50,18 +114,18 @@
           Cookie.set('clientId', clientId);
         }
 
-        document.getElementById('TestSocket').addEventListener('click', function(event) {
+        // document.getElementById('TestSocket').addEventListener('click', function(event) {
 
-            var name = document.getElementById('NameBox').value;
+        //     var name = document.getElementById('NameBox').value;
 
-            var command = {
-              id: clientId,
-              type: 'setName',
-              value: name
-            };
+        //     var command = {
+        //       id: clientId,
+        //       type: 'setName',
+        //       value: name
+        //     };
 
-            socket.send(JSON.stringify(command));
-        });
+        //     socket.send(JSON.stringify(command));
+        // });
 
         var socket;
         var url = 'ws://' + document.URL.substr(7).split('/')[0];
@@ -114,7 +178,7 @@
             }
             else {
 
-              var itemName = listItem.innerText;
+              var itemName = listItem.textContent;
 
               if(name === itemName) {
                 if(name.match(/.+\_[0-9]+$/)) {
@@ -131,15 +195,20 @@
 
           Cookie.set('clientName', name);
 
+          var userItemHtml = name + ' <span class="changeName">(<span>change</span>)</span>';
+
           if(!existingUserItem) {
-            var newListItem = document.createElement('li'); 
-            newListItem.textContent = name;
+            var newListItem = document.createElement('li');
+            newListItem.setAttribute('class', 'current');
+            newListItem.innerHTML = userItemHtml;
             newListItem.id = clientId;
             document.querySelector('#UsersList > ul').appendChild(newListItem);
           }
           else {
-            existingUserItem.innerText = name;
+            existingUserItem.innerHTML = userItemHtml;
           }
+
+          attachChangeNameEvent(name, socket);
 
           socket.onopen = function() {
 
@@ -228,12 +297,15 @@
 
         <ul>
           <% for(var i = 0; i < clients.length; i++) { %>
-            <li id="<%= clients[i].id %>"><%= clients[i].name %></li>
+            <li id="<%= clients[i].id %>" class="<%= clients[i].id === currentClientId ? 'current' : '' %>">
+              <%= clients[i].name %>
+              <% if(clients[i].id === currentClientId) { %>
+                <span class="changeName">(<span>change</span>)</span>
+              <% } %>
+            </li>
           <% } %>
         </ul>
 
-        <input type="text" id="NameBox" />
-        <input type="button" id="TestSocket" value="Test Socket" />
       </section>
     </div>
 

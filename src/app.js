@@ -57,11 +57,12 @@ var clients = [];
 
 app.get('/', function(req, res){  
 
-  console.log('Get request: ' + clients.length);
+  var clientId = req.cookies['clientid'];
 
   res.render('index', {
     title: 'Nodecamp chatroom',
-    clients: clients
+    clients: clients,
+    currentClientId: clientId
   });
 });
 
@@ -103,7 +104,7 @@ wsServer.on('request', function(request) {
         clients.forEach(function(element, index, array) {
           if(element !== client) {
             element.connection.sendUTF(JSON.stringify({
-              id: command.id,
+              id: client.id,
               type: 'setName',
               value: command.value
             }));

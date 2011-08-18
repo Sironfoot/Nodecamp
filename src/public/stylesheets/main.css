@@ -193,6 +193,23 @@ body > header > hgroup > h2
 	overflow-y: scroll;
 }
 
+#UsersList > ul > li.current
+{
+	font-weight: bold;
+}
 
+#UsersList > ul > li.current > span.changeName
+{
+	font-weight: normal;
+}
 
+#UsersList > ul > li.current > span.changeName > span
+{
+	color: blue;
+	cursor: pointer;
+}
 
+#UsersList > ul > li.current > span.changeName > span:hover
+{
+	text-decoration: underline;
+}

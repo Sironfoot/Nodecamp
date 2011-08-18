@@ -114,19 +114,6 @@
           Cookie.set('clientId', clientId);
         }
 
-        // document.getElementById('TestSocket').addEventListener('click', function(event) {
-
-        //     var name = document.getElementById('NameBox').value;
-
-        //     var command = {
-        //       id: clientId,
-        //       type: 'setName',
-        //       value: name
-        //     };
-
-        //     socket.send(JSON.stringify(command));
-        // });
-
         var socket;
         var url = 'ws://' + document.URL.substr(7).split('/')[0];
 
@@ -147,11 +134,13 @@
               var usersList = document.querySelectorAll('#UsersList > ul > li');
 
               for(var i = 0; i < usersList.length; i++) {
-                
+                var userItem = usersList[i];
+
+                if(userItem.id === command.id) {
+                  userItem.textContent = command.value;
+                }
               }
             }
-
-            //alert(cmd);
           };
 
           socket.onclose = function() {

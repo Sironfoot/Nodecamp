@@ -156,6 +156,9 @@
 
               document.querySelector('#UsersList > ul').removeChild(elementToRemove);
             }
+            else if(command.type == 'message') {
+            	alert(command.value);
+            }
           };
 
           socket.onclose = function() {
@@ -224,11 +227,21 @@
 
             socket.send(JSON.stringify(command));
           };
+          
+          var chatbox = document.getElementById('ChatBox');
+          
+          chatbox.addEventListener('keypress', function(e) {
+          	var key = String.fromCharCode(e.keyCode);
+          	
+          	socket.send(JSON.stringify({ id: clientId, type: 'message', value: key }));
+          });
         }
         else {
           alert('WebSockets are NOT supported!');
         }
       }, false);
+      
+      
     </script>
     
   </head>

@@ -77,7 +77,7 @@ wsServer.on('request', function(request) {
   client.connection = connection;
   clients.push(client);
 
-  console.log((new Date()) + ' Connection accepted (' + connection.remoteAddress +').');
+  
 
   connection.on('message', function(message) {
     if (message.type == 'utf8') {
@@ -87,6 +87,8 @@ wsServer.on('request', function(request) {
       if(command.type == 'init') {
         client.id = command.id;
         client.name = command.value;
+        
+        console.log('+ ' + client.id + ' connected.');
 
         clients.forEach(function(element, index, array) {
           if(element !== client) {
@@ -97,13 +99,15 @@ wsServer.on('request', function(request) {
             }));
           }
         });
+        
+        
       }
       else if(command.type == 'setName') {
         client.name = command.value;
 
         clients.forEach(function(element, index, array) {
           if(element !== client) {
-            element.connection.sendUTF(JSON.stringify({
+        	element.connection.sendUTF(JSON.stringify({
               id: client.id,
               type: 'setName',
               value: command.value
@@ -113,6 +117,15 @@ wsServer.on('request', function(request) {
       }
       else if (command.type == 'message') {
         
+        clients.forEach(function(element, index, array) {
+        	if (element !== client) {
+        		element.connection.sendUTF(JSON.stringify({
+        			id: client.id,
+        			type: 'message',
+        			value: command.value
+        		}));
+        	}
+        });
       }
 
 
@@ -125,7 +138,7 @@ wsServer.on('request', function(request) {
   });
 
   connection.on('close', function(connection) {
-    console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+    console.log('- ' + client.id + ' disconnected.');
 
     clients.remove(client);
 

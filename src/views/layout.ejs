@@ -141,6 +141,21 @@
                 }
               }
             }
+            else if(command.type === 'addClient') {
+
+              var newListItem = document.createElement('li');
+              newListItem.textContent = command.value
+              newListItem.id = command.id;
+              document.querySelector('#UsersList > ul').appendChild(newListItem);
+            }
+            else if(command.type == 'removeClient') {
+
+              var elementToRemove = document.getElementById(command.id);
+
+              //alert(elementToRemove);
+
+              document.querySelector('#UsersList > ul').removeChild(elementToRemove);
+            }
           };
 
           socket.onclose = function() {

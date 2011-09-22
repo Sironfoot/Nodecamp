@@ -122,6 +122,7 @@ wsServer.on('request', function(request) {
         		element.connection.sendUTF(JSON.stringify({
         			id: client.id,
         			type: 'message',
+        			action: command.action,
         			value: command.value
         		}));
         	}

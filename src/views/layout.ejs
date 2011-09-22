@@ -27,6 +27,20 @@
 
         alert(output);
       }
+      
+      String.prototype.trimEnd = function(value) {
+      	var index = this.lastIndexOf(value);
+      	
+      	console.log('value is: "' + value + '"');
+      	console.log(index);
+      	console.log(this.length);
+      	
+      	if(index !== -1) {
+      		return this.substring(0, index);
+      	}
+      	
+      	return this;
+      }
 
       function guidGenerator() {
         var S4 = function() {
@@ -148,7 +162,7 @@
               newListItem.id = command.id;
               document.querySelector('#UsersList > ul').appendChild(newListItem);
             }
-            else if(command.type == 'removeClient') {
+            else if(command.type === 'removeClient') {
 
               var elementToRemove = document.getElementById(command.id);
 
@@ -156,13 +170,21 @@
 
               document.querySelector('#UsersList > ul').removeChild(elementToRemove);
             }
-            else if(command.type == 'message') {
-            	alert(command.value);
+            else if (command.type === 'message') {
+            
+            	var output = document.querySelector('#TestChat > p');
+            	
+            	if (command.action === 'add') {
+            		output.textContent += command.value;
+            	}
+            	else if (command.action === 'remove') {
+            		output.textContent = output.textContent.trimEnd(command.value);
+            	}
             }
           };
 
           socket.onclose = function() {
-            alert('socket closed');
+            console.log('Socket closed');
           };
 
           socket.onerror = function(event) {
@@ -226,21 +248,40 @@
             };
 
             socket.send(JSON.stringify(command));
+            
+            var chatBox = document.getElementById('ChatBox');
+            pollChatBox(chatBox, socket, clientId);
           };
-          
-          var chatbox = document.getElementById('ChatBox');
-          
-          chatbox.addEventListener('keypress', function(e) {
-          	var key = String.fromCharCode(e.keyCode);
-          	
-          	socket.send(JSON.stringify({ id: clientId, type: 'message', value: key }));
-          });
         }
         else {
           alert('WebSockets are NOT supported!');
         }
       }, false);
       
+      var currentChatBoxText = '';
+      
+      function pollChatBox(chatBox, socket, clientId) {
+      	
+      	var text = chatBox.value;
+      	
+      	if(text !== currentChatBoxText) {
+      		
+      		if(text.length > currentChatBoxText.length) {
+      			var diff = text.replace(currentChatBoxText, '');
+      			
+      			socket.send(JSON.stringify({ id: clientId, type: 'message', action: 'add', value: diff }));
+      		}
+      		else if(currentChatBoxText.length > text.length) {
+      			var diff = currentChatBoxText.replace(text, '');
+      			
+      			socket.send(JSON.stringify({ id: clientId, type: 'message', action: 'remove', value: diff }));
+      		}
+      	}
+      	
+      	currentChatBoxText = text;
+      	
+      	setTimeout(function() { pollChatBox(chatBox, socket, clientId); }, 100);
+      };
       
     </script>
     
@@ -268,36 +309,10 @@
           </p>
         </article>
 
-        <article>
+        <article id="TestChat">
           <h3>Tim:</h3>
           <p>
-            Twenty-four hours a day, the latest national and international
-            stories as they break. wenty-four hours a day, the latest
-            national and international stories as they break.
-          </p>
-        </article>
-
-        <article>
-          <h3>John:</h3>
-          <p>
-            Twenty-four hours a day, the latest national and international
-            stories as they break.
-          </p>
-        </article>
-
-        <article>
-          <h3>John:</h3>
-          <p>
-            Twenty-four hours a day, the latest national and international
-            stories as they break.
-          </p>
-        </article>
-
-        <article>
-          <h3>Tim:</h3>
-          <p>
-            Twenty-four hours a day, the latest national and international
-            stories as they break.
+            
           </p>
         </article>
 

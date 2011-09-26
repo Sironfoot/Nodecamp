@@ -15,6 +15,41 @@
     <script src="/javascripts/cookies.js"></script>
 
     <script>
+    
+    	function insertAfter( referenceNode, newNode )
+		{
+    		referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling );
+		}
+    
+    	Array.prototype.remove = function(e) {
+  			for (var i = 0; i < this.length; i++) {
+    			if (e == this[i]) return this.splice(i, 1);
+    		}
+		}
+		
+		var propertyMatches = function(propName, index, array) {
+			return this.item[propName] === this.filter[propName];
+		};
+		
+		Array.prototype.first = function(filter) {
+			
+			var props = [];
+			for(var prop in filter) {
+				if(filter.hasOwnProperty(prop)) {
+					props.push(prop.toString());
+				}
+			}
+		
+			for (var i = 0; i < this.length; i++) {
+				var item = this[i];
+			
+				if(props.every(propertyMatches, { item: item, filter: filter })) {
+					return item;
+				}
+			}
+			
+			return null;
+		}
 
       function showProps(obj, ownPropsOnly) {
         var output = '';
@@ -77,6 +112,8 @@
 
         return newName;
       }
+      
+      var clients = [];
 
       function attachChangeNameEvent(currentName, socket) {
         document.querySelector('#UsersList .changeName').addEventListener('click', function(event) {
@@ -150,32 +187,70 @@
               for(var i = 0; i < usersList.length; i++) {
                 var userItem = usersList[i];
 
-                if(userItem.id === command.id) {
+                if(userItem.id === 'ID_' + command.id) {
                   userItem.textContent = command.value;
                 }
               }
+              
+              clients.forEach(function(element, index, array) {
+              	if(element.id === command.id) {
+              		element.name = command.value;
+              	}
+              });
             }
             else if(command.type === 'addClient') {
 
               var newListItem = document.createElement('li');
               newListItem.textContent = command.value
-              newListItem.id = command.id;
+              newListItem.id = 'ID_' + command.id;
               document.querySelector('#UsersList > ul').appendChild(newListItem);
+              
+              //console.log('New client: ' + command.id);
+              clients.push({ id: command.id, name: command.value });
             }
             else if(command.type === 'removeClient') {
 
-              var elementToRemove = document.getElementById(command.id);
-
-              //alert(elementToRemove);
-
+              var elementToRemove = document.getElementById('ID_' + command.id);
               document.querySelector('#UsersList > ul').removeChild(elementToRemove);
+              
+              clients.remove(clients.first({ id: command.id }));
             }
             else if (command.type === 'message') {
-            
-            	var output = document.querySelector('#TestChat > p');
+                        
+            	var chatBox = document.querySelector('#ChatWindow > article.ID_' + command.id + ':last-of-type');
             	
+            	if(!chatBox) {
+            	
+            		var client = clients.first({ id: command.id });
+            	
+            		chatBox = document.createElement('article');
+            		chatBox.setAttribute('class', 'ID_' + command.id);
+            		
+            		var nameElement = document.createElement('h3');
+            		nameElement.textContent = 'DUMMY USER: ';
+            		chatBox.appendChild(nameElement);
+            		
+            		var textElement = document.createElement('p');
+            		chatBox.appendChild(textElement);
+            	
+            		var lastConversation = document.querySelector('#ChatWindow > article:last-of-type');
+            		
+            		if(lastConversation) {
+            			insertAfter(lastConversation, chatBox);
+            		}
+            		else {
+            			var chatWindow = document.getElementById('ChatWindow');
+            			chatWindow.appendChild(chatBox);
+            		}
+            	}
+            
+            	var output = chatBox.querySelector('p');
+
             	if (command.action === 'add') {
             		output.textContent += command.value;
+            		
+            		
+            		
             	}
             	else if (command.action === 'remove') {
             		output.textContent = output.textContent.trimEnd(command.value);
@@ -230,7 +305,7 @@
             var newListItem = document.createElement('li');
             newListItem.setAttribute('class', 'current');
             newListItem.innerHTML = userItemHtml;
-            newListItem.id = clientId;
+            newListItem.id = 'ID_' + clientId;
             document.querySelector('#UsersList > ul').appendChild(newListItem);
           }
           else {
@@ -240,6 +315,9 @@
           attachChangeNameEvent(name, socket);
 
           socket.onopen = function() {
+          
+          	//console.log('This client: ' + clientId);
+          	clients.push({ id: clientId, name: name, thisClient: true });
 
             var command = {
               id: clientId,
@@ -301,18 +379,11 @@
       <section id="ChatWindow">
         <h2>Conversion</h2>
 
-        <article>
+        <article class="ID_08cfadce-dee8-2c85-ca06-ac8fed60a844">
           <h3>John:</h3>
           <p>
             Twenty-four hours a day, the latest national and international
             stories as they break.
-          </p>
-        </article>
-
-        <article id="TestChat">
-          <h3>Tim:</h3>
-          <p>
-            
           </p>
         </article>
 

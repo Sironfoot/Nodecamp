@@ -27,18 +27,36 @@
     		}
 		}
 		
+		Array.prototype.any = function(filter) {
+		
+			var props = getProperties(filter);
+		
+			return this.some(function(item, index, array) {
+				if(props.every(propertyMatches, { item: item, filter: filter })) {
+					return true;
+				}
+			});
+		};
+		
+		var getProperties = function(filter) {
+			var props = [];
+			
+			for(var prop in filter) {
+				if(filter.hasOwnProperty(prop)) {
+					props.push(prop.toString());
+				}
+			}
+			
+			return props;
+		};
+		
 		var propertyMatches = function(propName, index, array) {
 			return this.item[propName] === this.filter[propName];
 		};
 		
 		Array.prototype.first = function(filter) {
 			
-			var props = [];
-			for(var prop in filter) {
-				if(filter.hasOwnProperty(prop)) {
-					props.push(prop.toString());
-				}
-			}
+			var props = getProperties(filter);
 		
 			for (var i = 0; i < this.length; i++) {
 				var item = this[i];
@@ -49,7 +67,7 @@
 			}
 			
 			return null;
-		}
+		};
 
       function showProps(obj, ownPropsOnly) {
         var output = '';
@@ -181,7 +199,46 @@
 
             var command = JSON.parse(event.data);
 
-            if(command.type === 'setName') {
+			if(command.type === 'init') {
+				clients = command.value;
+				
+				var usersList = document.querySelector('#UsersList > ul');
+				
+				clients.forEach(function(client, index, array) {
+				
+					var userItemHtml = client.name;
+					
+					// <li class="[current]">John Smith 
+					var newListItem = document.createElement('li');
+					newListItem.id = 'ID_' + client.id;
+					newListItem.appendChild(document.createTextNode(client.name + ' '));
+					
+					if(client.id === clientId) {
+						newListItem.setAttribute('class', 'current');
+					
+						// <span class="changeName">(<span>change</span>)</span>
+						var changeNameNode = document.createElement('span');
+						changeNameNode.setAttribute('class', 'changeName');
+						changeNameNode.appendChild(document.createTextNode('('));
+						var innerSpanNode = document.createElement('span');
+						innerSpanNode.textContent = 'change';
+						changeNameNode.appendChild(innerSpanNode);
+						changeNameNode.appendChild(document.createTextNode(')'));
+						
+						newListItem.appendChild(changeNameNode);
+					}
+              		
+              		usersList.appendChild(newListItem);
+              		
+              		if(client.id === clientId) {
+              			attachChangeNameEvent(client.name, socket);
+              		}
+				});
+				
+				var chatBox = document.getElementById('ChatBox');
+            	pollChatBox(chatBox, socket, clientId);
+			}
+            else if(command.type === 'setName') {
               var usersList = document.querySelectorAll('#UsersList > ul > li');
 
               for(var i = 0; i < usersList.length; i++) {
@@ -199,19 +256,25 @@
               });
             }
             else if(command.type === 'addClient') {
+            
+            	if(!clients.any({ id: command.id })) {
 
-              var newListItem = document.createElement('li');
-              newListItem.textContent = command.value
-              newListItem.id = 'ID_' + command.id;
-              document.querySelector('#UsersList > ul').appendChild(newListItem);
+              		var newListItem = document.createElement('li');
+              		newListItem.textContent = command.value
+              		newListItem.id = 'ID_' + command.id;
+              		document.querySelector('#UsersList > ul').appendChild(newListItem);
               
-              //console.log('New client: ' + command.id);
-              clients.push({ id: command.id, name: command.value });
+              		clients.push({ id: command.id, name: command.value });
+              
+              		//console.log('Client added: ' + command.id + ' (' + command.value + ')');
+            	}
             }
             else if(command.type === 'removeClient') {
 
               var elementToRemove = document.getElementById('ID_' + command.id);
               document.querySelector('#UsersList > ul').removeChild(elementToRemove);
+              
+              //console.log('Client removed: ' + command.id);
               
               clients.remove(clients.first({ id: command.id }));
             }
@@ -299,25 +362,7 @@
 
           Cookie.set('clientName', name);
 
-          var userItemHtml = name + ' <span class="changeName">(<span>change</span>)</span>';
-
-          if(!existingUserItem) {
-            var newListItem = document.createElement('li');
-            newListItem.setAttribute('class', 'current');
-            newListItem.innerHTML = userItemHtml;
-            newListItem.id = 'ID_' + clientId;
-            document.querySelector('#UsersList > ul').appendChild(newListItem);
-          }
-          else {
-            existingUserItem.innerHTML = userItemHtml;
-          }
-
-          attachChangeNameEvent(name, socket);
-
           socket.onopen = function() {
-          
-          	//console.log('This client: ' + clientId);
-          	clients.push({ id: clientId, name: name, thisClient: true });
 
             var command = {
               id: clientId,
@@ -326,9 +371,6 @@
             };
 
             socket.send(JSON.stringify(command));
-            
-            var chatBox = document.getElementById('ChatBox');
-            pollChatBox(chatBox, socket, clientId);
           };
         }
         else {
@@ -399,14 +441,7 @@
         <h2>Who's Online</h2>
 
         <ul>
-          <% for(var i = 0; i < clients.length; i++) { %>
-            <li id="<%= clients[i].id %>" class="<%= clients[i].id === currentClientId ? 'current' : '' %>">
-              <%= clients[i].name %>
-              <% if(clients[i].id === currentClientId) { %>
-                <span class="changeName">(<span>change</span>)</span>
-              <% } %>
-            </li>
-          <% } %>
+
         </ul>
 
       </section>

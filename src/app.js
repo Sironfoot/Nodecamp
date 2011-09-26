@@ -89,18 +89,26 @@ wsServer.on('request', function(request) {
         client.name = command.value;
         
         console.log('+ ' + client.id + ' connected.');
+        
+        var clientList = [];
 
         clients.forEach(function(element, index, array) {
           if(element !== client) {
             element.connection.sendUTF(JSON.stringify({
-              id: element.id,
+              id: client.id,
               type: 'addClient',
-              value: element.name
+              value: client.name
             }));
           }
+          
+          clientList.push({ id: element.id, name: element.name, thisClient: element === client });
         });
         
-        
+        client.connection.sendUTF(JSON.stringify({
+        	id: client.id,
+        	type: 'init',
+        	value: clientList
+        }));
       }
       else if(command.type == 'setName') {
         client.name = command.value;

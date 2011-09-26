@@ -265,16 +265,12 @@
               		document.querySelector('#UsersList > ul').appendChild(newListItem);
               
               		clients.push({ id: command.id, name: command.value });
-              
-              		//console.log('Client added: ' + command.id + ' (' + command.value + ')');
             	}
             }
             else if(command.type === 'removeClient') {
 
               var elementToRemove = document.getElementById('ID_' + command.id);
               document.querySelector('#UsersList > ul').removeChild(elementToRemove);
-              
-              //console.log('Client removed: ' + command.id);
               
               clients.remove(clients.first({ id: command.id }));
             }
@@ -290,7 +286,7 @@
             		chatBox.setAttribute('class', 'ID_' + command.id);
             		
             		var nameElement = document.createElement('h3');
-            		nameElement.textContent = 'DUMMY USER: ';
+            		nameElement.textContent = client.name + ': ';
             		chatBox.appendChild(nameElement);
             		
             		var textElement = document.createElement('p');
@@ -311,9 +307,6 @@
 
             	if (command.action === 'add') {
             		output.textContent += command.value;
-            		
-            		
-            		
             	}
             	else if (command.action === 'remove') {
             		output.textContent = output.textContent.trimEnd(command.value);

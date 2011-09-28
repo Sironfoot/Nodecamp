@@ -7,9 +7,10 @@ body > header,
 #Middle,
 body > footer
 {
-	width: 900px;
+	width: 700px;
 	margin-left: auto;
 	margin-right: auto;
+	padding: 0 10px;
 }
 
 body > header
@@ -37,13 +38,13 @@ body > footer
 #ChatWindow
 {
 	float: left;
-	width: 600px;
+	width: 460px;
 }
 
 #UsersList
 {
 	float: right;
-	width: 200px;
+	width: 180px;
 }
 
 
@@ -213,4 +214,10 @@ body > header > hgroup > h2
 #UsersList > ul > li.current > span.changeName > span:hover
 {
 	text-decoration: underline;
+}
+
+#UsersList > ul > li.current input[type=text]
+{
+	width: 130px;
+	margin-right: 10px;
 }

@@ -16,9 +16,8 @@
 
     <script>
     
-    	function insertAfter( referenceNode, newNode )
-		{
-    		referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling );
+    	function insertAfter(referenceNode, newNode) {
+    		referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 		}
     
     	Array.prototype.remove = function(e) {
@@ -327,7 +326,9 @@
             		}
             		else {
             			var chatWindow = document.getElementById('ChatWindow');
-            			chatWindow.appendChild(chatBox);
+            			var chatForm = document.querySelector('#ChatWindow > fieldset');
+            			
+            			chatWindow.insertBefore(chatBox, chatForm);
             		}
             	}
             
@@ -507,15 +508,8 @@
       <section id="ChatWindow">
         <h2>Conversion</h2>
 
-        <article class="ID_08cfadce-dee8-2c85-ca06-ac8fed60a844">
-          <h3>John Doe:</h3>
-          <p>
-            Lorem ipsum mofo!!
-          </p>
-        </article>
-
         <fieldset>
-          <legend>Tim:</legend>
+          <legend>Numpty_1:</legend>
 
           <label>Message</label>
           <textarea id="ChatBox" cols="30" rows="10"></textarea>

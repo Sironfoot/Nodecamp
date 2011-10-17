@@ -127,12 +127,26 @@ wsServer.on('request', function(request) {
         
         clients.forEach(function(element, index, array) {
         	if (element !== client) {
-        		element.connection.sendUTF(JSON.stringify({
+        	
+        		var sendCmd = {
         			id: client.id,
         			type: 'message',
-        			action: command.action,
-        			value: command.value
-        		}));
+        			action: command.action
+        		};
+        		
+        		if(command.pos) {
+        			sendCmd.pos = command.pos;
+        			sendCmd.value = command.value;
+        		}
+        		else if (command.startPos && command.endPos) {
+        			sendCmd.startPos = command.startPos;
+        			sendCmd.endPos = command.endPos;
+        		}
+        		else {
+        			sendCmd.value = command.value;
+        		}
+        	
+        		element.connection.sendUTF(JSON.stringify(sendCmd));
         	}
         });
       }

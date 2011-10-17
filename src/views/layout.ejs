@@ -84,10 +84,6 @@
       String.prototype.trimEnd = function(value) {
       	var index = this.lastIndexOf(value);
       	
-      	console.log('value is: "' + value + '"');
-      	console.log(index);
-      	console.log(this.length);
-      	
       	if(index !== -1) {
       		return this.substring(0, index);
       	}
@@ -130,6 +126,38 @@
 
         return newName;
       }
+      
+            	
+		function performTextChatTransform(command, textContent) {
+		
+			if (command.action === 'add') {
+			
+				if(command.pos) {
+					return textContent.substring(0, command.pos) +
+						command.value + textContent.substring(command.pos);
+				}
+				else {
+					return textContent + command.value;
+				}
+			}
+			else if (command.action === 'remove') {
+			
+				if(command.startPos && command.endPos) {            		
+					return textContent.substring(0, command.startPos) + textContent.substring(command.endPos);
+				}
+				else {
+					return textContent.trimEnd(command.value);
+				}
+			}
+			else if(command.action === 'replace') {
+			
+				console.log('Replacing');
+			
+				return command.value;
+			}
+		}
+      
+      
       
       var clients = [];
 
@@ -305,12 +333,7 @@
             
             	var output = chatBox.querySelector('p');
 
-            	if (command.action === 'add') {
-            		output.textContent += command.value;
-            	}
-            	else if (command.action === 'remove') {
-            		output.textContent = output.textContent.trimEnd(command.value);
-            	}
+            	output.textContent = performTextChatTransform(command, output.textContent);
             }
           };
 
@@ -375,23 +398,93 @@
       
       function pollChatBox(chatBox, socket, clientId) {
       	
-      	var text = chatBox.value;
+      	var newText = chatBox.value;
       	
-      	if(text !== currentChatBoxText) {
+      	var cursorPosition = chatBox.selectionStart;
+      	
+      	if (newText !== currentChatBoxText) {
+
+      		//console.log('Start: ' + cursorStartPos + ', End: ' + cursorEndPos);
       		
-      		if(text.length > currentChatBoxText.length) {
-      			var diff = text.replace(currentChatBoxText, '');
-      			
-      			socket.send(JSON.stringify({ id: clientId, type: 'message', action: 'add', value: diff }));
-      		}
-      		else if(currentChatBoxText.length > text.length) {
-      			var diff = currentChatBoxText.replace(text, '');
-      			
-      			socket.send(JSON.stringify({ id: clientId, type: 'message', action: 'remove', value: diff }));
-      		}
-      	}
+      		var command = {};
       	
-      	currentChatBoxText = text;
+      		if (newText.length > currentChatBoxText.length) {
+      		
+      			if (cursorPosition === newText.length) {
+      				var diff = newText.replace(currentChatBoxText, '');
+      				socket.send(JSON.stringify({ id: clientId, type: 'message', action: 'add', value: diff }));
+      			}
+      			else {
+      				var numCharsAdded = newText.length - currentChatBoxText.length;
+      				var stringStartPos = cursorPosition - numCharsAdded;
+      				var stringAdded = newText.substring(stringStartPos, cursorPosition);
+      				
+      				//console.log('"' + stringAdded + '" at position ' + stringStartPos);
+      				//console.log('Lets add');
+      				
+      				command = {
+      					id: clientId,
+      					type: 'message',
+      					action: 'add',
+      					pos: stringStartPos,
+      					value: stringAdded
+      				}
+      				
+      				var finalText = performTextChatTransform(command, currentChatBoxText);
+      				
+      				//console.log(finalText);
+      				
+      				if(finalText != newText) {
+      					command = {
+      						id: clientId,
+      						type: 'message',
+      						action: 'replace',
+      						value: newText
+      					};
+      				}
+      				
+      				socket.send(JSON.stringify(command));
+      			}
+      		}
+      		else if (currentChatBoxText.length > newText.length) {
+      		
+      			if (cursorPosition === newText.length) {
+					var diff = currentChatBoxText.replace(newText, '');
+					socket.send(JSON.stringify({ id: clientId, type: 'message', action: 'remove', value: diff }));
+      			}
+      			else {
+      				var numCharsRemoved = currentChatBoxText.length - newText.length;
+      				var stringEndPos = cursorPosition + numCharsRemoved;
+      				var stringRemoved = currentChatBoxText.substring(cursorPosition, stringEndPos);
+      				
+      				//console.log('"' + stringRemoved + '" at position ' + cursorStartPos);
+      				//console.log('Lets remove');
+      				
+      				command = {
+      					id: clientId,
+      					type: 'message',
+      					action: 'remove',
+      					startPos: cursorPosition,
+      					endPos: stringEndPos
+      				};
+      				
+      				var finalText = performTextChatTransform(command, currentChatBoxText);
+      				
+      				if(finalText != newText) {
+      					command = {
+      						id: clientId,
+      						type: 'message',
+      						action: 'replace',
+      						value: newText
+      					};
+      				}
+      				
+      				socket.send(JSON.stringify(command));
+      			}
+      		}
+      		
+      		currentChatBoxText = newText;
+      	}
       	
       	setTimeout(function() { pollChatBox(chatBox, socket, clientId); }, 100);
       };

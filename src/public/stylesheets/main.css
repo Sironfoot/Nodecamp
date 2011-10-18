@@ -155,10 +155,13 @@ body > header > hgroup > h2
 	margin-bottom: 1em;
 }
 
-#ChatWindow > article > h3,
+#ChatWindow > article > h3
+{
+	font-size: 12px;
+}
+
 #ChatWindow > article > p
 {
-	display: inline;
 	line-height: 1.3em;
 }
 
@@ -169,7 +172,7 @@ body > header > hgroup > h2
 
 #ChatWindow > fieldset > legend
 {
-	font-size: 16px;
+	font-size: 12px;
 	font-weight: bold;
 	padding-bottom: 0.5em;
 }
@@ -182,7 +185,7 @@ body > header > hgroup > h2
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     resize: none;
-    height: 120px;
+    height: 1.5em;
 }
 
 /*---- UsersList ----*/

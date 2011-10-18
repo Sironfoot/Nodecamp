@@ -347,6 +347,9 @@
           };
 
           var name = Cookie.get('clientName') || 'Numpty_1';
+          
+          var chatFormLegend = document.querySelector('#ChatWindow > fieldset > legend');
+          chatFormLegend.textContent = name;
 
           var usersList = document.querySelectorAll('#UsersList > ul > li');
           var existingUserItem;
@@ -518,11 +521,7 @@
 
       <section id="UsersList">
         <h2>Who's Online</h2>
-
-        <ul>
-
-        </ul>
-
+        <ul></ul>
       </section>
     </div>
 
